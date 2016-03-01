@@ -57,18 +57,18 @@ void result_manage(std::string &str, ExecutedResult &res){
 		}
 		else{
 			if("" == res.warning_){
-				std::cout<<"tu putaopi zhiqian\n";
+				//std::cout<<"tu putaopi zhiqian\n";
 				reply_item["status"] = "ok";
 				reply_item["info"] = res.info_;
 				reply_item["error info"] = "";
 				reply_item["warning info"] = "";
 				reply_item["execute time"] =  " sec";
 
-				std::cout<<"tu putaopi zhizhong\n";
+				//std::cout<<"tu putaopi zhizhong\n";
 				reply_item["result"]= "";
 				//reply_item = result_item;
 				root.append(reply_item);
-				std::cout<<"tu putaopi zhihou\n";
+				//std::cout<<"tu putaopi zhihou\n";
 
 			}
 			else{

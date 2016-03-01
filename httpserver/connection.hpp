@@ -70,6 +70,9 @@ private:
   /// Handle completion of a write operation.
   void handle_write(const boost::system::error_code& e);
 
+  /// Handle the url and count the ";".
+  bool scmd_handle(const std::string str);
+
   /// Socket for the connection.
   boost::asio::ip::tcp::socket socket_;
 

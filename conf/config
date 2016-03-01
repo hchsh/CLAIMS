@@ -46,3 +46,12 @@ scan_batch=100
 
 #enable llvm codegen or not
 enable_codegen=0
+
+#the httpserver info
+httpserver_master_ip="219.228.147.149"
+
+httpserver_master_port="8097"
+
+httpserver_thread_num="100"
+
+httpserver_doc_root="/home/hcs/local/test/"

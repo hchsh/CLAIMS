@@ -50,6 +50,16 @@ void connection::stop()
   socket_.close();
 }
 
+bool connection::scmd_handle(std::string str){
+	int temp = 0;
+	for(int i = 0; i < str.length(); i++)
+		if(str[i] == ';') temp++;
+	if(temp == 1)
+		return true;
+	else
+		return false;
+}
+
 void connection::handle_read(const boost::system::error_code& e,
     std::size_t bytes_transferred)
 {
@@ -103,44 +113,63 @@ void connection::handle_read(const boost::system::error_code& e,
 				}
 				mutex.unlock();
 			}
+			//this function is not be completed.if the link_pool is full there is no handle.
 			if(i == rs.connection_max_number_){
 			}
 
 			else{
-				rcmd.cmd = scmd;
-				Daemon::getInstance()->addRemoteCommand(rcmd);
-				while(true){
-					sleep(1);
-					if(rs.result_got_[rcmd.socket_fd-100] == true){
+				if(!scmd_handle(scmd)){
+
+					reply_.status = reply::ok;
+					reply_.content.append("Please ensure your url have only one ';'.");
+					reply_.headers.resize(2);
+					reply_.headers[0].name = "Content-Length";
+					reply_.headers[0].value = boost::lexical_cast<std::string>(
+							reply_.content.size());
+					reply_.headers[1].name = "Content-Type";
+					reply_.headers[1].value = "text/html";
+
+					boost::asio::async_write(socket_, reply_.to_buffers(),
+								  boost::bind(&connection::handle_write, shared_from_this(),
+									boost::asio::placeholders::error));
+
+				}
+				else{
+					rcmd.cmd = scmd;
+					Daemon::getInstance()->addRemoteCommand(rcmd);
+					while(true){
+						sleep(1);
+						if(rs.result_got_[rcmd.socket_fd-100] == true){
 
 
 
-						string buff_to_send;
-						result_manage(buff_to_send,rs.result_[rcmd.socket_fd-100]);
+							string buff_to_send;
+							result_manage(buff_to_send,rs.result_[rcmd.socket_fd-100]);
 
-						reply_.status = reply::ok;
-						reply_.content.append(buff_to_send);
-						reply_.headers.resize(2);
-						reply_.headers[0].name = "Content-Length";
-						reply_.headers[0].value = boost::lexical_cast<std::string>(
-								reply_.content.size());
-						reply_.headers[1].name = "Content-Type";
-						reply_.headers[1].value = "text/html";
+							reply_.status = reply::ok;
+							reply_.content.append(buff_to_send);
+							reply_.headers.resize(2);
+							reply_.headers[0].name = "Content-Length";
+							reply_.headers[0].value = boost::lexical_cast<std::string>(
+									reply_.content.size());
+							reply_.headers[1].name = "Content-Type";
+							reply_.headers[1].value = "text/html";
 
-						boost::asio::async_write(socket_, reply_.to_buffers(),
-									  boost::bind(&connection::handle_write, shared_from_this(),
-										boost::asio::placeholders::error));
-
-
+							boost::asio::async_write(socket_, reply_.to_buffers(),
+										  boost::bind(&connection::handle_write, shared_from_this(),
+											boost::asio::placeholders::error));
 
 
-						rs.result_got_[rcmd.socket_fd-100] = false;
-						ExecutedResult resulttemp;
-						rs.result_[rcmd.socket_fd-100] = resulttemp;
-						rs.connection_lock_[rcmd.socket_fd-100] = false;
-						break;
-					}
-				}//the result from claims is in the ResultString rs;
+
+
+							rs.result_got_[rcmd.socket_fd-100] = false;
+							ExecutedResult resulttemp;
+							rs.result_[rcmd.socket_fd-100] = resulttemp;
+							rs.connection_lock_[rcmd.socket_fd-100] = false;
+							break;
+						}
+					}//the result from claims is in the ResultString rs;
+				}
 			}
     	}
     	else{
