@@ -88,7 +88,18 @@ std::string Config::catalog_file;
 
 int Config::thread_pool_init_thread_num;
 
+
 int Config::load_thread_num;
+
+std::string Config::httpserver_master_ip;
+
+std::string Config::httpserver_master_port;
+
+std::string Config::httpserver_thread_num;
+
+std::string Config::httpserver_doc_root;
+
+
 
 Config *Config::getInstance() {
   if (instance_ == 0) {
@@ -149,7 +160,18 @@ void Config::initialize() {
 
   thread_pool_init_thread_num = getInt("thread_pool_init_thread_num", 100);
 
+
   load_thread_num = getInt("load_thread_num", sysconf(_SC_NPROCESSORS_CONF));
+
+  httpserver_master_ip = getString("httpserver_master_ip", "127.0.0.1");
+
+  httpserver_master_port = getString("httpserver_master_port", "8097");
+
+  httpserver_thread_num = getString("httpserver_thread_num", "50");
+
+  httpserver_doc_root = getString("httpserver_doc_root", "/home/imdb/doc_root");
+
+
 
 #ifdef DEBUG_Config
   print_configure();
