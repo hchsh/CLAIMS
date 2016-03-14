@@ -33,6 +33,7 @@ struct ExecutedResult {
   std::string info_;
   std::string warning_;
   int warning_count_;
+  double result_time_;
 
   SpineLock append_lock_;
 

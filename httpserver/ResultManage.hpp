@@ -50,7 +50,7 @@ void result_manage(std::string &str, ExecutedResult &res){
 			reply_item["info"] = "";
 			reply_item["error info"] = "";
 			reply_item["warning info"] = "";
-			reply_item["execute time"] = std::to_string(rs->query_time_) + " sec";
+			reply_item["execute time"] = std::to_string(res.result_time_) + " sec";
 			reply_item["result"]= result_item;
 			//reply_item = result_item;
 			root.append(reply_item);
@@ -62,7 +62,7 @@ void result_manage(std::string &str, ExecutedResult &res){
 				reply_item["info"] = res.info_;
 				reply_item["error info"] = "";
 				reply_item["warning info"] = "";
-				reply_item["execute time"] =  " sec";
+				reply_item["execute time"] = std::to_string(res.result_time_) + " sec";
 
 				//std::cout<<"tu putaopi zhizhong\n";
 				reply_item["result"]= "";
@@ -78,7 +78,7 @@ void result_manage(std::string &str, ExecutedResult &res){
 				reply_item["error info"] = "";
 				std::string info = res.info_ + "\n\nWARNINGS:\n" + res.warning_ + "\n";
 				reply_item["warning info"] = info;
-				reply_item["execute time"] =  " sec";
+				reply_item["execute time"] = std::to_string(res.result_time_) + " sec";
 				reply_item["result"]= "";
 				//reply_item = result_item;
 				root.append(reply_item);
@@ -98,7 +98,7 @@ void result_manage(std::string &str, ExecutedResult &res){
 			reply_item["info"] = "";
 			reply_item["error info"] = res.error_info_;
 			reply_item["warning info"] = "";
-			reply_item["execute time"] =  " sec";
+			reply_item["execute time"] = std::to_string(res.result_time_) + " sec";
 			reply_item["result"]= "";
 			root.append(reply_item);
 		}
@@ -109,7 +109,7 @@ void result_manage(std::string &str, ExecutedResult &res){
 			reply_item["error info"] = res.error_info_;
 			std::string info = res.error_info_ + "\n\nWARNINGS:\n" + res.warning_ + "\n";
 			reply_item["warning info"] = info;
-			reply_item["execute time"] =  " sec";
+			reply_item["execute time"] = std::to_string(res.result_time_) + " sec";
 			reply_item["result"]= "";
 			root.append(reply_item);
 			ClientListenerLogging::log(
