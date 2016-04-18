@@ -35,7 +35,7 @@ coordinator:
 master = $ismaster
 
 #hadoop上的数据目录
-data = "$data"
+data = "/home/imdb/data/"
 
 #hdfs主节点
 hdfs_master_ip = "10.11.1.192"
@@ -62,6 +62,16 @@ client_listener_port = $client_listener_port
 enable_codegen = 0
 
 load_thread_num = 12
+
+#the httpserver info
+httpserver_master_ip="219.228.147.162"
+
+httpserver_master_port="8097"
+
+httpserver_thread_num="100"
+
+httpserver_doc_root="/home/imdb/local/test/"
+
 
 EOF
 done

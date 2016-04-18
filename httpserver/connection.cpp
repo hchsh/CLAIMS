@@ -93,7 +93,7 @@ void connection::handle_read(const boost::system::error_code& e,
 	
     	std::string reqstrl = "";
     	for(int i = 0; i < 8; i++) reqstrl.push_back(reqstr[i]);
-    	if(reqstrl == "/CLAIMS:"){
+    	if(reqstrl == "/CLAIMS/"){
 			std::string scmd = "";
 
 			for(int i = 8; i < reqstr.length(); i++) scmd.push_back(reqstr[i]);
@@ -154,7 +154,7 @@ void connection::handle_read(const boost::system::error_code& e,
 									reply_.content.size());
 							reply_.headers[1].name = "Content-Type";
 							reply_.headers[1].value = "text/html";
-
+							//sleep(100);
 							boost::asio::async_write(socket_, reply_.to_buffers(),
 										  boost::bind(&connection::handle_write, shared_from_this(),
 											boost::asio::placeholders::error));

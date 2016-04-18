@@ -31,12 +31,13 @@ void result_manage(std::string &str, ExecutedResult &res){
 		//result_ is not empty
 		if(res.result_ != NULL){
 			BlockStreamBase *block;
+			for(int i = 0; i< rs->schema_->getncolumns(); i++){
+				result_item[resutls_json[0]].append(col_name_list[i]);
+			}
+			cout<<rs->schema_->getncolumns()<<endl;
 			while(block = it.nextBlock()){
 				BlockStreamBase::BlockStreamTraverseIterator *block_it = block->createIterator();
 				void *tuple;
-				for(int i = 0; i< rs->schema_->getncolumns(); i++){
-					result_item[resutls_json[0]].append(col_name_list[i]);
-				}
 
 				while(tuple = block_it->nextTuple()){
 					for(int i = 0; i< rs->schema_->getncolumns(); i++){
