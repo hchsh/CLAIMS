@@ -103,18 +103,31 @@ void connection::handle_read(const boost::system::error_code& e,
 
 			boost::mutex mutex;
 			int i;
-			for(i = 0; i < rs.connection_max_number_; i++){
+			for(i = 1; i < rs.connection_max_number_; i++){
 				mutex.lock();
 				if(rs.connection_lock_[i] == false){
 					rs.connection_lock_[i] = true;
 					mutex.unlock();
-					rcmd.socket_fd = rs.fd_[i]+100;
+					rcmd.socket_fd = -rs.fd_[i];
 					break;
 				}
 				mutex.unlock();
 			}
 			//this function is not be completed.if the link_pool is full there is no handle.
 			if(i == rs.connection_max_number_){
+
+				reply_.status = reply::ok;
+				reply_.content.append("The number of connections has reached the upper limit,please try again.");
+				reply_.headers.resize(2);
+				reply_.headers[0].name = "Content-Length";
+				reply_.headers[0].value = boost::lexical_cast<std::string>(
+						reply_.content.size());
+				reply_.headers[1].name = "Content-Type";
+				reply_.headers[1].value = "text/html";
+
+				boost::asio::async_write(socket_, reply_.to_buffers(),
+							  boost::bind(&connection::handle_write, shared_from_this(),
+								boost::asio::placeholders::error));
 			}
 
 			else{
@@ -139,12 +152,12 @@ void connection::handle_read(const boost::system::error_code& e,
 					Daemon::getInstance()->addRemoteCommand(rcmd);
 					while(true){
 						sleep(1);
-						if(rs.result_got_[rcmd.socket_fd-100] == true){
+						if(rs.result_got_[-rcmd.socket_fd] == true){
 
 
 
 							string buff_to_send;
-							result_manage(buff_to_send,rs.result_[rcmd.socket_fd-100]);
+							result_manage(buff_to_send,rs.result_[-rcmd.socket_fd]);
 
 							reply_.status = reply::ok;
 							reply_.content.append(buff_to_send);
@@ -162,10 +175,10 @@ void connection::handle_read(const boost::system::error_code& e,
 
 
 
-							rs.result_got_[rcmd.socket_fd-100] = false;
+							rs.result_got_[-rcmd.socket_fd] = false;
 							ExecutedResult resulttemp;
-							rs.result_[rcmd.socket_fd-100] = resulttemp;
-							rs.connection_lock_[rcmd.socket_fd-100] = false;
+							rs.result_[-rcmd.socket_fd] = resulttemp;
+							rs.connection_lock_[-rcmd.socket_fd] = false;
 							break;
 						}
 					}//the result from claims is in the ResultString rs;
@@ -207,7 +220,8 @@ void connection::handle_write(const boost::system::error_code& e)
   {
     // Initiate graceful connection closure.
     boost::system::error_code ignored_ec;
-    socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both,
+    		ignored_ec);
   }
 
   if (e != boost::asio::error::operation_aborted)

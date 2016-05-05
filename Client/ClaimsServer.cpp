@@ -739,10 +739,10 @@ void *ClientListener::sendHandler(void *para) {
 		ClientListenerLogging::log("-SendHandler: get ExecutedResult for %d\n",
 				result.fd_);
 
-		if (result.fd_ >= 100) {
+		if (result.fd_ < 0) {
 			httpserver::ResultString& rs = httpserver::GetResultString();
-			rs.result_got_[result.fd_ - 100] = true;
-			rs.result_[result.fd_ - 100] = result;
+			rs.result_got_[-result.fd_] = true;
+			rs.result_[-result.fd_] = result;
 			continue;
 		}
 		checkFdValid(result.fd_);
