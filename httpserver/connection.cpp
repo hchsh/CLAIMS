@@ -147,11 +147,11 @@ void connection::handle_read(const boost::system::error_code& e,
 									boost::asio::placeholders::error));
 
 				}
-				else{
+				else{_
 					rcmd.cmd = scmd;
 					Daemon::getInstance()->addRemoteCommand(rcmd);
 					while(true){
-						sleep(1);
+						usleep(100);
 						if(rs.result_got_[-rcmd.socket_fd] == true){
 
 

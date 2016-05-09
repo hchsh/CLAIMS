@@ -1,3 +1,2 @@
-select * from t2;
-exit;
+show tabll;
 
