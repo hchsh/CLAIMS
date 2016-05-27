@@ -89,17 +89,13 @@ void httpserver_run(int argc,std::string argv[]){
 }
 
 int main(int argc, char** argv) {
-//initialize the httpserver and create a new thread to listen the request from http.
-//
+
   using claims::common::Logging;
   handle_parameters(argc, argv);
   Config::getInstance();
   handle_parameters(argc, argv);
   Config::getInstance()->print_configure();
   Logging claims_logging(argv[0]);
-
-  httpserver::httpserver_init();
-  boost::thread t1(httpserver_run,httpserver::hargc,httpserver::hargv);
 
 #ifndef DEBUG_MODE
   bool master;
@@ -115,6 +111,12 @@ int main(int argc, char** argv) {
     actor = "master";
   else
     actor = "slave";
+
+  //initialize the httpserver and create a new thread to listen the request from http.
+  if(master){
+	  httpserver::httpserver_init();
+	  boost::thread t1(httpserver_run,httpserver::hargc,httpserver::hargv);
+  }
 
 #ifndef FORK
   if (master) {
