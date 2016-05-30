@@ -3,8 +3,11 @@
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 
 namespace httpserver {
+
+boost::mutex lock;
 
 io_service_pool::io_service_pool(std::size_t pool_size)
   : next_io_service_(0)
@@ -49,10 +52,12 @@ void io_service_pool::stop()
 boost::asio::io_service& io_service_pool::get_io_service()
 {
   // Use a round-robin scheme to choose the next io_service to use.
+	lock.lock();
   boost::asio::io_service& io_service = *io_services_[next_io_service_];
   ++next_io_service_;
   if (next_io_service_ == io_services_.size())
     next_io_service_ = 0;
+  lock.unlock();
   return io_service;
 }
 

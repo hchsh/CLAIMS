@@ -36,7 +36,7 @@ libhttpserver_a_SOURCES = \
 	request_parser.cpp	request_parser.hpp\
 	claimshttpserver.cpp	header.hpp		\
 	request.hpp			claimshttpserver.hpp\
-	json.cppq			ResultToJson.hpp
+	json.cpp			ResultToJson.hpp
 
 SUBDIRS = json
 DIST_SUBDIRS = json

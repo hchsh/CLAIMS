@@ -40,7 +40,7 @@ void connection::start() {
 }
 
 void connection::stop() {
-	socket_.shutdown(boost::asio::socket_base::shutdown_both);
+	//socket_.shutdown(boost::asio::socket_base::shutdown_both);
 	socket_.close();
 }
 
