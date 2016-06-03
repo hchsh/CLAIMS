@@ -76,7 +76,7 @@ httpserver_master_ip="219.228.147.162"
 
 httpserver_master_port="8097"
 
-httpserver_thread_num="1"
+httpserver_thread_num="10"
 
 httpserver_doc_root="/home/imdb/local/test/"
 

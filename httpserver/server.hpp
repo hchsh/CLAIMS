@@ -19,7 +19,7 @@
 #include <boost/shared_ptr.hpp>
 #include "connection.hpp"
 #include "io_service_pool.hpp"
-#include "connection_manager.hpp"
+//#include "connection_manager.hpp"
 #include "request_handler.hpp"
 #include "../Daemon/Daemon.h"
 
@@ -61,7 +61,7 @@ private:
   io_service_pool io_service_pool_;
 
   /// The io_service used to perform asynchronous operations.
-  //boost::asio::io_service io_service_;
+  boost::asio::io_service io_service_;
 
   /// The signal_set is used to register for process termination notifications.
   boost::asio::signal_set signals_;
@@ -70,7 +70,7 @@ private:
   boost::asio::ip::tcp::acceptor acceptor_;
 
   /// The connection manager which owns all live connections.
-  connection_manager connection_manager_;
+  //connection_manager connection_manager_;
 
   /// The next connection to be accepted.
   connection_ptr new_connection_;

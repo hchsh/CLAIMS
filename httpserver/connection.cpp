@@ -12,9 +12,8 @@
 #include <vector>
 #include <boost/bind.hpp>
 #include <string.h>
-#include <boost/thread/mutex.hpp>
 #include <boost/lexical_cast.hpp>
-#include "connection_manager.hpp"
+//#include "connection_manager.hpp"
 #include "request_handler.hpp"
 #include "../Daemon/Daemon.h"
 #include "../httpserver/json/json.h"
@@ -23,8 +22,10 @@
 namespace httpserver {
 
 connection::connection(boost::asio::io_service& io_service,
-		connection_manager& manager, request_handler& handler) :
-		socket_(io_service), connection_manager_(manager), request_handler_(
+		//connection_manager& manager,
+		request_handler& handler) :
+		socket_(io_service), //connection_manager_(manager),
+		request_handler_(
 				handler) {
 }
 
@@ -32,18 +33,19 @@ boost::asio::ip::tcp::socket& connection::socket() {
 	return socket_;
 }
 
+
 void connection::start() {
 	socket_.async_read_some(boost::asio::buffer(buffer_),
 			boost::bind(&connection::handle_read, shared_from_this(),
 					boost::asio::placeholders::error,
 					boost::asio::placeholders::bytes_transferred));
 }
-
+/*
 void connection::stop() {
 	//socket_.shutdown(boost::asio::socket_base::shutdown_both);
 	socket_.close();
 }
-
+*/
 bool connection::scmd_handle(std::string str) {
 	int temp = 0;
 	for (int i = 0; i < str.length(); i++)
@@ -94,7 +96,8 @@ void connection::handle_read(const boost::system::error_code& e,
 				remote_command rcmd;
 				ResultString& rs = GetResultString();
 
-				boost::mutex mutex;
+
+				/*
 				int i;
 				for (i = 1; i < rs.connection_max_number_; i++) {
 					mutex.lock();
@@ -106,6 +109,7 @@ void connection::handle_read(const boost::system::error_code& e,
 					}
 					mutex.unlock();
 				}
+
 				//this function is not be completed.if the link_pool is full there is no handle.
 				if (i == rs.connection_max_number_) {
 
@@ -117,7 +121,7 @@ void connection::handle_read(const boost::system::error_code& e,
 					reply_.headers[0].value = boost::lexical_cast<std::string>(
 							reply_.content.size());
 					reply_.headers[1].name = "Content-Type";
-					reply_.headers[1].value = "text/html";
+					reply_.headers[1].rsvalue = "text/html";
 
 					boost::asio::async_write(socket_, reply_.to_buffers(),
 							boost::bind(&connection::handle_write,
@@ -126,15 +130,51 @@ void connection::handle_read(const boost::system::error_code& e,
 				}
 
 				else {
-					if (!scmd_handle(scmd)) {
+				*/
+
+
+
+				if (!scmd_handle(scmd)) {
+
+					reply_.status = reply::ok;
+					reply_.content.append(
+							"Please ensure your url have only one ';'.");
+					reply_.headers.resize(2);
+					reply_.headers[0].name = "Content-Length";
+					reply_.headers[0].value = boost::lexical_cast<
+							std::string>(reply_.content.size());
+					reply_.headers[1].name = "Content-Type";
+					reply_.headers[1].value = "text/html";
+
+					boost::asio::async_write(socket_, reply_.to_buffers(),
+							boost::bind(&connection::handle_write,
+									shared_from_this(),
+									boost::asio::placeholders::error));
+
+				} else {
+
+
+					int i;
+					mutex_.lock();
+					for (i = 1; i < rs.connection_max_number_; i++) {
+						if (rs.connection_lock_[i] == false) {
+							rs.connection_lock_[i] = true;
+							rcmd.socket_fd = -rs.fd_[i];
+							break;
+						}
+					}
+					mutex_.unlock();
+
+					//this function is not be completed.if the link_pool is full there is no handle.
+					if (i == rs.connection_max_number_) {
 
 						reply_.status = reply::ok;
 						reply_.content.append(
-								"Please ensure your url have only one ';'.");
+								"The number of connections has reached the upper limit,please try again.");
 						reply_.headers.resize(2);
 						reply_.headers[0].name = "Content-Length";
-						reply_.headers[0].value = boost::lexical_cast<
-								std::string>(reply_.content.size());
+						reply_.headers[0].value = boost::lexical_cast<std::string>(
+								reply_.content.size());
 						reply_.headers[1].name = "Content-Type";
 						reply_.headers[1].value = "text/html";
 
@@ -142,18 +182,25 @@ void connection::handle_read(const boost::system::error_code& e,
 								boost::bind(&connection::handle_write,
 										shared_from_this(),
 										boost::asio::placeholders::error));
+					}
 
-					} else {
+					else {
+
 						rcmd.cmd = scmd;
 						Daemon::getInstance()->addRemoteCommand(rcmd);
 						while (true) {
 							usleep(100);
-							if (rs.result_got_[-rcmd.socket_fd] == true) {
+							if (rs.result_got_[i] == true) {
 
 								string buff_to_send;
 								result_manage(buff_to_send,
-										rs.result_[-rcmd.socket_fd]);
-
+										rs.result_[i]);
+								ExecutedResult resulttemp;
+								rs.result_[i] = resulttemp;
+								mutex_.lock();
+								rs.result_got_[i] = false;
+								rs.connection_lock_[i] = false;
+								mutex_.unlock();
 								reply_.status = reply::ok;
 								reply_.content.append(buff_to_send);
 								reply_.headers.resize(2);
@@ -168,11 +215,6 @@ void connection::handle_read(const boost::system::error_code& e,
 										boost::bind(&connection::handle_write,
 												shared_from_this(),
 												boost::asio::placeholders::error));
-
-								rs.result_got_[-rcmd.socket_fd] = false;
-								ExecutedResult resulttemp;
-								rs.result_[-rcmd.socket_fd] = resulttemp;
-								rs.connection_lock_[-rcmd.socket_fd] = false;
 								break;
 							}
 						} //the result from claims is in the ResultString rs;
@@ -197,9 +239,9 @@ void connection::handle_read(const boost::system::error_code& e,
 							boost::asio::placeholders::error,
 							boost::asio::placeholders::bytes_transferred));
 		}
-	} else if (e != boost::asio::error::operation_aborted) {
+	}/* else if (e != boost::asio::error::operation_aborted) {
 		connection_manager_.stop(shared_from_this());
-	}
+	}*/
 }
 
 void connection::handle_write(const boost::system::error_code& e) {
@@ -210,9 +252,9 @@ void connection::handle_write(const boost::system::error_code& e) {
 				ignored_ec);
 	}
 
-	if (e != boost::asio::error::operation_aborted) {
+	/*if (e != boost::asio::error::operation_aborted) {
 		connection_manager_.stop(shared_from_this());
-	}
+	}*/
 }
 
 } // namespace http

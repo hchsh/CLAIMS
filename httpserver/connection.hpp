@@ -22,6 +22,7 @@
 #include "request_handler.hpp"
 #include "request_parser.hpp"
 #include "../Daemon/Daemon.h"
+#include <boost/thread/mutex.hpp>
 
 namespace httpserver {
 
@@ -33,6 +34,10 @@ public:
 	vector<ExecutedResult> result_;
 	const int connection_max_number_ = 100;
 };
+
+static boost::mutex mutex_;
+
+
 
 inline ResultString& GetResultString(){
 	static ResultString st;
@@ -51,7 +56,8 @@ class connection
 public:
   /// Construct a connection with the given io_service.
   explicit connection(boost::asio::io_service& io_service,
-      connection_manager& manager, request_handler& handler);
+      //connection_manager& manager,
+	  request_handler& handler);
 
   /// Get the socket associated with the connection.
   boost::asio::ip::tcp::socket& socket();
@@ -61,6 +67,7 @@ public:
 
   /// Stop all asynchronous operations associated with the connection.
   void stop();
+
 
 private:
   /// Handle completion of a read operation.
@@ -75,9 +82,8 @@ private:
 
   /// Socket for the connection.
   boost::asio::ip::tcp::socket socket_;
-
   /// The manager for this connection.
-  connection_manager& connection_manager_;
+  //connection_manager& connection_manager_;
 
   /// The handler used to process the incoming request.
   request_handler& request_handler_;
@@ -93,6 +99,7 @@ private:
 
   /// The reply to be sent back to the client.
   reply reply_;
+
 };
 
 typedef boost::shared_ptr<connection> connection_ptr;

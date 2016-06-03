@@ -23,7 +23,6 @@
 #include "../Daemon/Daemon.h"
 #include "ClientResponse.h"
 #include "json/json.h"
-#include "../httpserver/connection.hpp"
 
 
 class ClientListener {
@@ -69,5 +68,8 @@ private:
 	static int standard_err;
 
 };
+
+
+
 
 #endif /* CLAIMSSERVER_H_ */

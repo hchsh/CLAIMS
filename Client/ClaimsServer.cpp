@@ -19,6 +19,7 @@
 #include "../catalog/catalog.h"
 #include "../Daemon/Daemon.h"
 #include "../common/Logging.h"
+#include "../httpserver/connection.hpp"
 
 // ClientListener::standard_input = dup(STD)
 int ClientListener::standard_input = dup(STDIN_FILENO);
@@ -741,8 +742,12 @@ void *ClientListener::sendHandler(void *para) {
 
 		if (result.fd_ < 0) {
 			httpserver::ResultString& rs = httpserver::GetResultString();
+
+			httpserver::mutex_.lock();
 			rs.result_got_[-result.fd_] = true;
 			rs.result_[-result.fd_] = result;
+
+			httpserver::mutex_.unlock();
 			continue;
 		}
 		checkFdValid(result.fd_);
