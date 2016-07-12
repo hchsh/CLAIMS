@@ -165,6 +165,14 @@ class ThreadPoolLogging {
       __attribute__((format(printf, 1, 2)));
 };
 
+class HttpserverLogging {
+ public:
+  static void log(const char* format, ...)
+      __attribute__((format(printf, 1, 2)));
+  static void elog(const char* format, ...)
+      __attribute__((format(printf, 1, 2)));
+};
+
 static void Logging_ExchangeIteratorLowerWithWideDependency(const char* format,
                                                             ...) {
 #ifdef DEBUG_ExchangeIteratorWithWideDependency

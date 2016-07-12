@@ -97,7 +97,7 @@ void ClientListener::restoreStd() {
 void ClientListener::checkFdValid(int fd) {
 	// check whether the file descriptor is closed
 	int status = fcntl(fd, F_GETFL);
-	if (-1 == status) {
+	if (-1 == status && fd >= -1) {
 		ClientLogging::elog("fd %d is invalid.%s", fd, strerror(errno));
 		//std::cout << "fd " << fd << " is invalid." << strerror(errno) << "\n";
 	} else {

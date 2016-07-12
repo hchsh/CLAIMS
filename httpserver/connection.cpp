@@ -156,7 +156,7 @@ void connection::handle_read(const boost::system::error_code& e,
 
 					int i;
 					mutex_.lock();
-					for (i = 1; i < rs.connection_max_number_; i++) {
+					for (i = 2; i < rs.connection_max_number_; i++) {
 						if (rs.connection_lock_[i] == false) {
 							rs.connection_lock_[i] = true;
 							rcmd.socket_fd = -rs.fd_[i];
