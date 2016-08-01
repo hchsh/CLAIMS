@@ -8,11 +8,9 @@
 #include <startup.h>
 #include <getopt.h>
 #include <string>
-#include <boost/thread/thread.hpp>
 // #include "Test/set_up_environment.h"
 #include "./Test/TestMain.cpp"
 #include "common/log/logging.h"
-#include "httpserver/claimshttpserver.hpp"
 #define AUTU_MASTER
 // #define FORK
 //#define DEBUG_MODE
@@ -84,9 +82,6 @@ void handle_parameters(int argc, char** argv) {
     }
   }
 }
-void httpserver_run(int argc,std::string argv[]){
-	httpserver::init(argc,argv);
-}
 
 int main(int argc, char** argv) {
 
@@ -112,11 +107,7 @@ int main(int argc, char** argv) {
   else
     actor = "slave";
 
-  //initialize the httpserver and create a new thread to listen the request from http.
-  if(master){
-	  httpserver::httpserver_init();
-	  boost::thread t1(httpserver_run,httpserver::hargc,httpserver::hargv);
-  }
+
 
 #ifndef FORK
   if (master) {

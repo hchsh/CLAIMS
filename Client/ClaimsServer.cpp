@@ -40,6 +40,16 @@ ClientListener::~ClientListener() {
 	delete[] m_clientFds;
 }
 
+int check_sock_fd(int fd_){
+	if (fd_ < 0)
+		return -fd_;
+	httpserver::ResultString& rs = httpserver::GetResultString();
+	for (int i = 0; i < rs.connection_max_number_; i++){
+		if(rs.sock_fd_[i] == fd_)
+			return i;
+	}
+	return -1;
+}
 int ClientListener::addClient(const int fd) {
 	if (m_num == MAXCONN) {
 		perror("Server has the maximum connection");
@@ -739,13 +749,14 @@ void *ClientListener::sendHandler(void *para) {
 		printf("-SendHandler: get ExecutedResult for %d\n", result.fd_);
 		ClientListenerLogging::log("-SendHandler: get ExecutedResult for %d\n",
 				result.fd_);
-
-		if (result.fd_ < 0) {
+		int temp = check_sock_fd(result.fd_);
+		if (temp != -1) {
+			cout<<"server get the result!"<<endl;
 			httpserver::ResultString& rs = httpserver::GetResultString();
 
 			httpserver::mutex_.lock();
-			rs.result_got_[-result.fd_] = true;
-			rs.result_[-result.fd_] = result;
+			rs.result_got_[temp] = true;
+			rs.result_[temp] = result;
 
 			httpserver::mutex_.unlock();
 			continue;

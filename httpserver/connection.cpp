@@ -196,8 +196,8 @@ void connection::handle_read(const boost::system::error_code& e,
 								result_manage(buff_to_send,
 										rs.result_[i]);
 								ExecutedResult resulttemp;
-								rs.result_[i] = resulttemp;
 								mutex_.lock();
+								rs.result_[i] = resulttemp;
 								rs.result_got_[i] = false;
 								rs.connection_lock_[i] = false;
 								mutex_.unlock();

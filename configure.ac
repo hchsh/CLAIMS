@@ -51,6 +51,8 @@ AC_CONFIG_FILES([
   stmt_handler/Makefile
   httpserver/Makefile
   httpserver/json/Makefile
+  mysql/Makefile
+  mysql/packet/Makefile
 ])
 AC_OUTPUT
 

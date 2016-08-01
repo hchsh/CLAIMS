@@ -11,7 +11,7 @@ AM_CPPFLAGS=-fPIC  -DTHERON_XS\
 #-L/usr/local/lib \
 #-I/usr/local/include
 AM_LDFLAGS=  -lc -lm -lrt -lpthread -lboost_serialization -lboost_date_time -lboost_system \
-	-lconfig++ -lxs -lnuma -lreadline -lhistory -lz -ltinfo -Wl,--no-as-needed -ldl -rdynamic -lglog -lboost_thread-mt
+	-lconfig++ -lxs -lnuma -lreadline -lhistory -lz -ltinfo -Wl,--no-as-needed -ldl -rdynamic -lglog -lboost_thread-mt -pthread
 
 if OPT_TCMALLOC
 AM_CPPFLAGS+=-fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
@@ -57,6 +57,8 @@ LDADD =  \
 	common/types/ttmath/libttmath.a \
 	utility/libutility.a \
 	httpserver/libhttpserver.a\
+	mysql/libmysql.a\
+    mysql/packet/libpacket.a \
 	${THERON_HOME}/Lib/libtherond.a \
 	${BOOST_HOME}/stage/lib/libboost_serialization.so \
 	${BOOST_HOME}/stage/lib/libboost_system.so \
@@ -99,9 +101,9 @@ test_SOURCES = Test/gtest_main.cpp\
 
 SUBDIRS=  catalog Client common Daemon Executor IndexManager\
 loader physical_operator logical_operator  Resource \
-storage Test utility codegen sql_parser stmt_handler httpserver
+storage Test utility codegen sql_parser stmt_handler httpserver mysql
 
 DIST_SUBDIRS =  catalog Client common Daemon Executor IndexManager\
 loader physical_operator logical_operator  Resource \
-storage Test utility codegen sql_parser stmt_handler httpserver
+storage Test utility codegen sql_parser stmt_handler httpserver mysql
 

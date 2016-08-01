@@ -29,6 +29,7 @@ namespace httpserver {
 class ResultString{
 public:
 	vector<int> fd_;
+	vector<int> sock_fd_;
 	vector<bool> connection_lock_;
 	vector<bool> result_got_;
 	vector<ExecutedResult> result_;

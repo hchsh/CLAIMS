@@ -55,6 +55,7 @@ void server::InitResultString(){
 	ExecutedResult resulttemp;
 	for(int i = 0; i < rs.connection_max_number_; i++){
 		rs.fd_.push_back(i);
+		rs.sock_fd_.push_back(-1);
 		rs.connection_lock_.push_back(false);
 		rs.result_got_.push_back(false);
 		rs.result_.push_back(resulttemp);

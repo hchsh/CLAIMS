@@ -23,6 +23,9 @@
 #include "common/expression/data_type_oper.h"
 #include "common/expression/expr_type_cast.h"
 #include "common/expression/type_conversion_matrix.h"
+#include <boost/thread/thread.hpp>
+#include "mysql/mysql_server.h"
+#include "httpserver/claimshttpserver.hpp"
 
 using claims::common::InitAggAvgDivide;
 using claims::common::InitOperatorFunc;
@@ -34,6 +37,9 @@ using claims::common::rSuccess;
 
 Environment* Environment::_instance = 0;
 
+void httpserver_run(int argc,std::string argv[]){
+	httpserver::init(argc,argv);
+}
 Environment::Environment(bool ismaster) : ismaster_(ismaster) {
   _instance = this;
   Config::getInstance();
@@ -90,6 +96,21 @@ Environment::Environment(bool ismaster) : ismaster_(ismaster) {
 
   exchangeTracker = new ExchangeTracker();
   expander_tracker_ = ExpanderTracker::getInstance();
+  if(ismaster){
+	  pthread_t t_cmysql;
+	  		//initializeClientListener();
+	  const int error1 = pthread_create(&t_cmysql, NULL, InitMysqlListener, NULL);
+	  	if (error1 != 0) {
+	  		std::cout << "cannot create t_cmysql thread!" << strerror(errno)
+	  				<< std::endl;
+	  	}
+	  //InitMysqlListener();
+  }
+  //initialize the httpserver and create a new thread to listen the request from http.
+  if(ismaster){
+	  httpserver::httpserver_init();
+	  boost::thread t1(httpserver_run,httpserver::hargc,httpserver::hargv);
+  }
 #ifndef DEBUG_MODE
   if (ismaster) {
     initializeClientListener();
@@ -225,3 +246,10 @@ bool Environment::initializeThreadPool() {
 IteratorExecutorSlave* Environment::getIteratorExecutorSlave() const {
   return iteratorExecutorSlave;
 }
+
+void *Environment::InitMysqlListener(void * null_) {
+
+	//claims::mysql::CMysqlServer::GetInstance()->Initialize();
+	claims::mysql::CMysqlServer::GetInstance()->Start();
+}
+

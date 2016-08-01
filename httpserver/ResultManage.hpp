@@ -14,7 +14,7 @@
 #include "../Daemon/Daemon.h"
 namespace httpserver{
 
-void result_manage(std::string &str, ExecutedResult &res){
+static void result_manage(std::string &str, ExecutedResult &res){
 	Json::Value root;
 	Json::Value reply_item;
 	Json::Value result_item;
